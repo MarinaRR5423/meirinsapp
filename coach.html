@@ -59,7 +59,9 @@
       </div>
       <p id="trainer-email" class="sidebar-email"></p>
       <nav class="sidebar-nav">
-        <span class="sidebar-navitem active" data-i18n="clients">Mis alumnas</span>
+        <span class="sidebar-navitem active" onclick="showSection('clients')">Mis alumnas</span>
+        <span class="sidebar-navitem" onclick="showSection('programs')">Mis programas</span>
+        <span class="sidebar-navitem" onclick="showSection('exercises')">Ejercicios</span>
       </nav>
       <div class="sidebar-code-box">
         <p class="sidebar-code-label" data-i18n="code.label">Tu código de entrenadora</p>
@@ -70,19 +72,200 @@
     </aside>
 
     <main class="coach-main">
-      <h1 class="coach-heading" data-i18n="clients">Mis alumnas</h1>
-      <div id="clients-loading" class="coach-muted" data-i18n="loading">Cargando…</div>
-      <div id="clients-empty" class="coach-empty hidden">
-        <p class="coach-empty-title" data-i18n="empty.title">Aún no tienes alumnas conectadas</p>
-        <p class="coach-muted" data-i18n="empty.hint">Cuando una alumna introduzca tu código en la app Meirins, aparecerá aquí.</p>
-      </div>
-      <div id="clients-list" class="clients-grid hidden"></div>
+
+      <!-- ── MIS ALUMNAS ── -->
+      <section id="section-clients">
+        <h1 class="coach-heading">Mis alumnas</h1>
+        <div id="clients-loading" class="coach-muted">Cargando…</div>
+        <div id="clients-empty" class="coach-empty hidden">
+          <p class="coach-empty-title">Aún no tienes alumnas conectadas</p>
+          <p class="coach-muted">Cuando una alumna introduzca tu código en la app Meirins, aparecerá aquí.</p>
+        </div>
+        <div id="clients-list" class="clients-grid hidden"></div>
+      </section>
+
+      <!-- ── MIS PROGRAMAS ── -->
+      <section id="section-programs" class="hidden">
+        <h1 class="coach-heading">Mis programas</h1>
+        <div class="programs-grid">
+
+          <div class="program-card">
+            <div class="program-header">
+              <span class="program-days-badge">3 días / semana</span>
+              <h2 class="program-title">Fuerza total · Iniciación</h2>
+              <p class="program-desc">Programa de introducción a la fuerza con ejercicios compuestos. Ideal para alumnas que empiezan desde cero.</p>
+            </div>
+            <div class="program-sessions">
+              <div class="session-block">
+                <p class="session-label">Lunes · Tren inferior</p>
+                <ul class="session-list">
+                  <li>Sentadilla goblet — 3×12</li>
+                  <li>Peso muerto rumano con mancuernas — 3×10</li>
+                  <li>Zancadas alternas — 3×10 cada pierna</li>
+                  <li>Puente de glúteo — 3×15</li>
+                  <li>Plancha frontal — 3×30 seg</li>
+                </ul>
+              </div>
+              <div class="session-block">
+                <p class="session-label">Miércoles · Tren superior</p>
+                <ul class="session-list">
+                  <li>Press de banca con mancuernas — 3×10</li>
+                  <li>Remo en polea baja — 3×12</li>
+                  <li>Press militar sentada — 3×10</li>
+                  <li>Curl de bíceps — 3×12</li>
+                  <li>Tríceps en polea — 3×12</li>
+                </ul>
+              </div>
+              <div class="session-block">
+                <p class="session-label">Viernes · Cuerpo completo</p>
+                <ul class="session-list">
+                  <li>Sentadilla con barra — 3×8</li>
+                  <li>Dominadas asistidas — 3×6</li>
+                  <li>Hip thrust — 3×12</li>
+                  <li>Fondos en paralelas — 3×8</li>
+                  <li>Core: dead bug — 3×10</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="program-card">
+            <div class="program-header">
+              <span class="program-days-badge">2 días / semana</span>
+              <h2 class="program-title">Glúteo y core · Sin material</h2>
+              <p class="program-desc">Entrenamiento en casa sin equipamiento. Foco en glúteo, core y movilidad. Perfecto para mantener actividad entre sesiones.</p>
+            </div>
+            <div class="program-sessions">
+              <div class="session-block">
+                <p class="session-label">Martes · Glúteo y pierna</p>
+                <ul class="session-list">
+                  <li>Sentadilla sumo — 4×15</li>
+                  <li>Puente de glúteo a una pierna — 3×12 c/u</li>
+                  <li>Patada de glúteo en cuadrupedia — 3×15 c/u</li>
+                  <li>Abducción lateral tumbada — 3×20 c/u</li>
+                  <li>Sentadilla isométrica en pared — 3×45 seg</li>
+                </ul>
+              </div>
+              <div class="session-block">
+                <p class="session-label">Jueves · Core y movilidad</p>
+                <ul class="session-list">
+                  <li>Plancha lateral — 3×30 seg c/u</li>
+                  <li>Mountainclimbers — 3×20</li>
+                  <li>Superman — 3×12</li>
+                  <li>Estiramiento de cadera en paloma — 2×60 seg</li>
+                  <li>Movilidad torácica con rodillo — 5 min</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="program-card">
+            <div class="program-header">
+              <span class="program-days-badge">2 días / semana</span>
+              <h2 class="program-title">Resistencia y tonificación · Elásticos</h2>
+              <p class="program-desc">Programa con bandas elásticas para trabajar todo el cuerpo con alta activación muscular y bajo impacto articular.</p>
+            </div>
+            <div class="program-sessions">
+              <div class="session-block">
+                <p class="session-label">Lunes · Tren inferior con banda</p>
+                <ul class="session-list">
+                  <li>Sentadilla con banda en rodillas — 4×15</li>
+                  <li>Hip thrust con banda — 4×15</li>
+                  <li>Caminata lateral con banda — 3×12 c/u</li>
+                  <li>Good morning con banda — 3×12</li>
+                  <li>Curl femoral de pie con banda — 3×12 c/u</li>
+                </ul>
+              </div>
+              <div class="session-block">
+                <p class="session-label">Jueves · Tren superior con banda</p>
+                <ul class="session-list">
+                  <li>Press de pecho con banda — 3×12</li>
+                  <li>Remo con banda — 3×12</li>
+                  <li>Press hombro con banda — 3×12</li>
+                  <li>Curl de bíceps con banda — 3×15</li>
+                  <li>Extensión de tríceps con banda — 3×15</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── EJERCICIOS ── -->
+      <section id="section-exercises" class="hidden">
+        <h1 class="coach-heading">Ejercicios</h1>
+        <div class="ex-filters">
+          <div class="ex-filter-group">
+            <label class="ex-filter-label">Parte del cuerpo</label>
+            <div class="ex-filter-btns" id="filter-body">
+              <button class="ex-fbtn active" data-filter="body" data-val="all">Todos</button>
+              <button class="ex-fbtn" data-filter="body" data-val="glúteo">Glúteo</button>
+              <button class="ex-fbtn" data-filter="body" data-val="pierna">Pierna</button>
+              <button class="ex-fbtn" data-filter="body" data-val="pecho">Pecho</button>
+              <button class="ex-fbtn" data-filter="body" data-val="espalda">Espalda</button>
+              <button class="ex-fbtn" data-filter="body" data-val="hombro">Hombro</button>
+              <button class="ex-fbtn" data-filter="body" data-val="bíceps">Bíceps</button>
+              <button class="ex-fbtn" data-filter="body" data-val="tríceps">Tríceps</button>
+              <button class="ex-fbtn" data-filter="body" data-val="core">Core</button>
+              <button class="ex-fbtn" data-filter="body" data-val="movilidad">Movilidad</button>
+            </div>
+          </div>
+          <div class="ex-filter-group">
+            <label class="ex-filter-label">Material</label>
+            <div class="ex-filter-btns" id="filter-equip">
+              <button class="ex-fbtn active" data-filter="equip" data-val="all">Todos</button>
+              <button class="ex-fbtn" data-filter="equip" data-val="sin material">Sin material</button>
+              <button class="ex-fbtn" data-filter="equip" data-val="pesas">Pesas</button>
+              <button class="ex-fbtn" data-filter="equip" data-val="elásticos">Elásticos</button>
+              <button class="ex-fbtn" data-filter="equip" data-val="máquina">Máquina</button>
+            </div>
+          </div>
+        </div>
+        <div id="ex-list" class="ex-grid"></div>
+      </section>
+
     </main>
   </div>
 
   <style>
     .coach-lang-btn { background: transparent; border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.5); font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 4px; cursor: pointer; }
     .coach-lang-btn.active { color: white; border-color: white; background: rgba(255,255,255,0.15); }
+
+    /* Nav */
+    .sidebar-navitem { display: block; padding: 10px 14px; border-radius: 10px; cursor: pointer; color: rgba(255,255,255,0.55); font-size: 14px; font-weight: 500; transition: all .15s; }
+    .sidebar-navitem:hover { background: rgba(255,255,255,0.07); color: white; }
+    .sidebar-navitem.active { background: rgba(124,106,247,0.25); color: #a898ff; }
+
+    /* Programs */
+    .programs-grid { display: flex; flex-direction: column; gap: 24px; }
+    .program-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; }
+    .program-header { padding: 20px 24px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .program-days-badge { display: inline-block; background: rgba(124,106,247,0.2); color: #a898ff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
+    .program-title { font-size: 18px; font-weight: 700; color: white; margin: 0 0 6px; }
+    .program-desc { font-size: 13px; color: rgba(255,255,255,0.5); margin: 0; }
+    .program-sessions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0; }
+    .session-block { padding: 16px 24px; border-right: 1px solid rgba(255,255,255,0.07); }
+    .session-block:last-child { border-right: none; }
+    .session-label { font-size: 12px; font-weight: 700; color: #7c6af7; text-transform: uppercase; letter-spacing: .5px; margin: 0 0 10px; }
+    .session-list { margin: 0; padding-left: 16px; }
+    .session-list li { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 5px; }
+
+    /* Exercises */
+    .ex-filters { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+    .ex-filter-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .ex-filter-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: .5px; min-width: 110px; }
+    .ex-filter-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .ex-fbtn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all .15s; }
+    .ex-fbtn:hover { background: rgba(255,255,255,0.12); color: white; }
+    .ex-fbtn.active { background: rgba(124,106,247,0.25); border-color: #7c6af7; color: #a898ff; }
+    .ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .ex-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px 16px; }
+    .ex-card-name { font-size: 14px; font-weight: 700; color: white; margin: 0 0 6px; }
+    .ex-card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ex-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+    .ex-tag-body { background: rgba(124,106,247,0.2); color: #a898ff; }
+    .ex-tag-equip { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.55); }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
@@ -214,6 +397,109 @@
         renderClients([]);
       }
     }
+
+    // ── Section navigation ──
+    function showSection(name) {
+      ['clients','programs','exercises'].forEach(s => {
+        document.getElementById('section-' + s).classList.toggle('hidden', s !== name);
+      });
+      document.querySelectorAll('.sidebar-navitem').forEach((el, i) => {
+        el.classList.toggle('active', ['clients','programs','exercises'][i] === name);
+      });
+      if (name === 'exercises') renderExercises();
+    }
+
+    // ── Exercise data ──
+    const EXERCISES = [
+      { name: 'Sentadilla', body: 'pierna', equip: 'sin material' },
+      { name: 'Sentadilla goblet', body: 'pierna', equip: 'pesas' },
+      { name: 'Sentadilla con barra', body: 'pierna', equip: 'pesas' },
+      { name: 'Sentadilla sumo', body: 'glúteo', equip: 'sin material' },
+      { name: 'Sentadilla sumo con mancuerna', body: 'glúteo', equip: 'pesas' },
+      { name: 'Sentadilla isométrica en pared', body: 'pierna', equip: 'sin material' },
+      { name: 'Sentadilla con banda', body: 'pierna', equip: 'elásticos' },
+      { name: 'Zancada alterna', body: 'pierna', equip: 'sin material' },
+      { name: 'Zancada con mancuernas', body: 'pierna', equip: 'pesas' },
+      { name: 'Peso muerto rumano', body: 'glúteo', equip: 'pesas' },
+      { name: 'Good morning con banda', body: 'glúteo', equip: 'elásticos' },
+      { name: 'Hip thrust con barra', body: 'glúteo', equip: 'pesas' },
+      { name: 'Hip thrust con banda', body: 'glúteo', equip: 'elásticos' },
+      { name: 'Puente de glúteo', body: 'glúteo', equip: 'sin material' },
+      { name: 'Puente de glúteo a una pierna', body: 'glúteo', equip: 'sin material' },
+      { name: 'Patada de glúteo en cuadrupedia', body: 'glúteo', equip: 'sin material' },
+      { name: 'Patada de glúteo con banda', body: 'glúteo', equip: 'elásticos' },
+      { name: 'Abducción lateral tumbada', body: 'glúteo', equip: 'sin material' },
+      { name: 'Caminata lateral con banda', body: 'glúteo', equip: 'elásticos' },
+      { name: 'Curl femoral en máquina', body: 'pierna', equip: 'máquina' },
+      { name: 'Extensión de cuádriceps en máquina', body: 'pierna', equip: 'máquina' },
+      { name: 'Prensa de pierna', body: 'pierna', equip: 'máquina' },
+      { name: 'Curl femoral de pie con banda', body: 'pierna', equip: 'elásticos' },
+      { name: 'Press de banca con mancuernas', body: 'pecho', equip: 'pesas' },
+      { name: 'Press de banca con barra', body: 'pecho', equip: 'pesas' },
+      { name: 'Press de pecho con banda', body: 'pecho', equip: 'elásticos' },
+      { name: 'Aperturas con mancuernas', body: 'pecho', equip: 'pesas' },
+      { name: 'Flexiones', body: 'pecho', equip: 'sin material' },
+      { name: 'Fondos en paralelas', body: 'tríceps', equip: 'sin material' },
+      { name: 'Remo con mancuerna', body: 'espalda', equip: 'pesas' },
+      { name: 'Remo en polea baja', body: 'espalda', equip: 'máquina' },
+      { name: 'Remo con banda', body: 'espalda', equip: 'elásticos' },
+      { name: 'Dominadas asistidas', body: 'espalda', equip: 'máquina' },
+      { name: 'Jalón al pecho en polea', body: 'espalda', equip: 'máquina' },
+      { name: 'Superman', body: 'espalda', equip: 'sin material' },
+      { name: 'Press militar con mancuernas', body: 'hombro', equip: 'pesas' },
+      { name: 'Press hombro con banda', body: 'hombro', equip: 'elásticos' },
+      { name: 'Elevaciones laterales', body: 'hombro', equip: 'pesas' },
+      { name: 'Elevaciones frontales', body: 'hombro', equip: 'pesas' },
+      { name: 'Curl de bíceps con mancuernas', body: 'bíceps', equip: 'pesas' },
+      { name: 'Curl de bíceps con banda', body: 'bíceps', equip: 'elásticos' },
+      { name: 'Curl martillo', body: 'bíceps', equip: 'pesas' },
+      { name: 'Curl en polea', body: 'bíceps', equip: 'máquina' },
+      { name: 'Tríceps en polea alta', body: 'tríceps', equip: 'máquina' },
+      { name: 'Extensión de tríceps con banda', body: 'tríceps', equip: 'elásticos' },
+      { name: 'Press francés con mancuerna', body: 'tríceps', equip: 'pesas' },
+      { name: 'Plancha frontal', body: 'core', equip: 'sin material' },
+      { name: 'Plancha lateral', body: 'core', equip: 'sin material' },
+      { name: 'Dead bug', body: 'core', equip: 'sin material' },
+      { name: 'Mountain climbers', body: 'core', equip: 'sin material' },
+      { name: 'Crunch abdominal', body: 'core', equip: 'sin material' },
+      { name: 'Rueda abdominal', body: 'core', equip: 'sin material' },
+      { name: 'Hollow hold', body: 'core', equip: 'sin material' },
+      { name: 'Estiramiento de cadera en paloma', body: 'movilidad', equip: 'sin material' },
+      { name: 'Movilidad torácica con rodillo', body: 'movilidad', equip: 'sin material' },
+      { name: 'Hip flexor stretch', body: 'movilidad', equip: 'sin material' },
+      { name: 'World's greatest stretch', body: 'movilidad', equip: 'sin material' },
+      { name: 'Movilidad de tobillo', body: 'movilidad', equip: 'sin material' },
+    ];
+
+    let activeBody = 'all', activeEquip = 'all';
+
+    function renderExercises() {
+      const filtered = EXERCISES.filter(e =>
+        (activeBody === 'all' || e.body === activeBody) &&
+        (activeEquip === 'all' || e.equip === activeEquip)
+      );
+      document.getElementById('ex-list').innerHTML = filtered.length
+        ? filtered.map(e => `
+          <div class="ex-card">
+            <p class="ex-card-name">${e.name}</p>
+            <div class="ex-card-tags">
+              <span class="ex-tag ex-tag-body">${e.body}</span>
+              <span class="ex-tag ex-tag-equip">${e.equip}</span>
+            </div>
+          </div>`).join('')
+        : '<p class="coach-muted">No hay ejercicios con estos filtros.</p>';
+    }
+
+    document.addEventListener('click', e => {
+      const btn = e.target.closest('.ex-fbtn');
+      if (!btn) return;
+      const { filter, val } = btn.dataset;
+      if (filter === 'body') activeBody = val;
+      if (filter === 'equip') activeEquip = val;
+      btn.closest('.ex-filter-btns').querySelectorAll('.ex-fbtn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderExercises();
+    });
 
     // ── Render clients ──
     function renderClients(clients) {
