@@ -449,12 +449,14 @@
 
     // ── EJERCICIOS ──
     async function loadExercises() {
-      if (!currentTrainerId) return;
       document.getElementById('ex-loading').classList.remove('hidden');
       document.getElementById('ex-list').innerHTML = '';
-      const { data } = await sb.from('trainer_exercises')
-        .select('*').eq('trainer_id', currentTrainerId).order('name');
-      allExercises = data || [];
+      const { data } = await sb.from('exercises_library').select('*').order('name');
+      allExercises = (data || []).map(e => ({
+        ...e,
+        body_part: e.muscle_es || e.muscle,
+        equipment: e.equipment,
+      }));
       document.getElementById('ex-loading').classList.add('hidden');
       renderExercises();
     }
@@ -462,7 +464,7 @@
     function renderExercises() {
       const filtered = allExercises.filter(e =>
         (activeBody === 'all' || e.body_part === activeBody) &&
-        (activeEquip === 'all' || e.equipment === activeEquip)
+        (activeEquip === 'all' || (e.equipment || '').toLowerCase().includes(activeEquip))
       );
       document.getElementById('ex-list').innerHTML = filtered.length
         ? filtered.map(e => `
