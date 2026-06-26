@@ -167,7 +167,24 @@
         btn.textContent = 'Crear cuenta'; btn.disabled = false;
         return;
       }
-      await sb.from('trainers').insert({ user_id: data.user.id, name, trainer_code: generateCode(name) });
+
+      // Si hay sesión activa (email confirmation desactivado), insertar y entrar
+      if (data.session) {
+        const { error: insertError } = await sb.from('trainers').insert({
+          user_id: data.user.id, name, trainer_code: generateCode(name)
+        });
+        if (insertError) {
+          document.getElementById('reg-error').textContent = insertError.message;
+          btn.textContent = 'Crear cuenta'; btn.disabled = false;
+          return;
+        }
+        showDashboard(data.user);
+      } else {
+        // Email confirmation requerido
+        document.getElementById('reg-error').style.color = '#7c6af7';
+        document.getElementById('reg-error').textContent = '¡Cuenta creada! Revisa tu email para confirmar y luego entra.';
+        btn.textContent = 'Crear cuenta'; btn.disabled = false;
+      }
     }
 
     // ── Logout ──
