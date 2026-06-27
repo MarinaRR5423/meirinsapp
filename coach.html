@@ -195,6 +195,17 @@
               <label class="form-label">Notas (opcional)</label>
               <textarea class="form-input" id="ex-notes" rows="2" placeholder="Indicaciones, variantes…"></textarea>
             </div>
+            <div class="form-group">
+              <label class="form-label">Imagen / GIF del ejercicio (opcional)</label>
+              <div id="ex-img-preview-wrap" style="display:none;margin-bottom:8px">
+                <img id="ex-img-preview" src="" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px"/>
+              </div>
+              <label for="ex-img-file" style="display:flex;align-items:center;gap:10px;cursor:pointer;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.2);border-radius:10px;padding:12px 16px;color:rgba(255,255,255,0.6);font-size:14px">
+                <span style="font-size:22px">📷</span>
+                <span id="ex-img-label">Subir foto o GIF desde tu dispositivo</span>
+              </label>
+              <input type="file" id="ex-img-file" accept="image/*,.gif" style="display:none" onchange="previewExImg(this)"/>
+            </div>
             <p id="ex-error" class="auth-error"></p>
             <button class="auth-btn" type="submit" id="ex-save-btn">Guardar ejercicio</button>
           </form>
@@ -506,16 +517,51 @@
         : '<p class="coach-muted">No hay ejercicios con estos filtros.</p>';
     }
 
+    function previewExImg(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const label = document.getElementById('ex-img-label');
+      label.textContent = file.name;
+      const wrap = document.getElementById('ex-img-preview-wrap');
+      const preview = document.getElementById('ex-img-preview');
+      const reader = new FileReader();
+      reader.onload = ev => { preview.src = ev.target.result; wrap.style.display = 'block'; };
+      reader.readAsDataURL(file);
+    }
+
+    async function uploadExerciseImage(file, exerciseName) {
+      const ext = file.name.split('.').pop();
+      const path = `exercises/${currentTrainerId}/${Date.now()}_${exerciseName.replace(/\s+/g,'-').toLowerCase()}.${ext}`;
+      const { data, error } = await sb.storage.from('exercise-images').upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: urlData } = sb.storage.from('exercise-images').getPublicUrl(path);
+      return urlData.publicUrl;
+    }
+
     async function saveExercise(e) {
       e.preventDefault();
       const btn = document.getElementById('ex-save-btn');
       btn.textContent = 'Guardando…'; btn.disabled = true;
+
+      let gif_url = null;
+      const fileInput = document.getElementById('ex-img-file');
+      if (fileInput.files[0]) {
+        try {
+          gif_url = await uploadExerciseImage(fileInput.files[0], document.getElementById('ex-name').value.trim());
+        } catch (err) {
+          document.getElementById('ex-error').textContent = 'Error subiendo imagen: ' + err.message;
+          btn.textContent = 'Guardar ejercicio'; btn.disabled = false;
+          return;
+        }
+      }
+
       const { error } = await sb.from('trainer_exercises').insert({
         trainer_id: currentTrainerId,
         name: document.getElementById('ex-name').value.trim(),
         body_part: document.getElementById('ex-body').value || null,
         equipment: document.getElementById('ex-equip').value || null,
         notes: document.getElementById('ex-notes').value.trim() || null,
+        gif_url,
       });
       if (error) {
         document.getElementById('ex-error').textContent = error.message;
@@ -523,6 +569,8 @@
         return;
       }
       e.target.reset();
+      document.getElementById('ex-img-preview-wrap').style.display = 'none';
+      document.getElementById('ex-img-label').textContent = 'Subir foto o GIF desde tu dispositivo';
       closeModal('modal-exercise');
       btn.textContent = 'Guardar ejercicio'; btn.disabled = false;
       loadExercises();
