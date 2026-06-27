@@ -135,6 +135,23 @@
         <div id="ex-list" class="ex-grid"></div>
       </section>
 
+      <!-- ── MODAL DETALLE EJERCICIO ── -->
+      <div id="modal-ex-detail" class="modal-overlay hidden" onclick="if(event.target===this)closeModal('modal-ex-detail')">
+        <div class="modal-card" style="max-width:580px;padding:0;overflow:hidden">
+          <div id="ex-detail-img-wrap" style="width:100%;height:280px;background:rgba(255,255,255,0.04);position:relative">
+            <img id="ex-detail-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block"/>
+            <button class="modal-close" onclick="closeModal('modal-ex-detail')" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:white;border:none;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer">✕</button>
+          </div>
+          <div style="padding:22px 24px 28px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="ex-detail-tags"></div>
+            <h2 id="ex-detail-name" style="font-size:20px;font-weight:800;color:white;margin:0 0 14px"></h2>
+            <div id="ex-detail-difficulty" style="margin-bottom:16px"></div>
+            <div id="ex-detail-instructions" style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.7;margin-bottom:14px"></div>
+            <div id="ex-detail-safety" style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- ── MODAL EJERCICIO ── -->
       <div id="modal-exercise" class="modal-overlay hidden" onclick="if(event.target===this)closeModal('modal-exercise')">
         <div class="modal-card">
@@ -471,7 +488,7 @@
       );
       document.getElementById('ex-list').innerHTML = filtered.length
         ? filtered.map(e => `
-          <div class="ex-card">
+          <div class="ex-card" onclick="openExDetail(${JSON.stringify(e).replace(/"/g,'&quot;')})" style="cursor:pointer">
             ${e.gif_url
               ? `<img class="ex-card-gif" src="${e.gif_url}" alt="${e.name}" loading="lazy"/>`
               : `<div class="ex-card-gif-placeholder">💪</div>`}
@@ -482,9 +499,8 @@
                   ${e.body_part ? `<span class="ex-tag ex-tag-body">${e.body_part}</span>` : ''}
                   ${e.equipment ? `<span class="ex-tag ex-tag-equip">${e.equipment}</span>` : ''}
                 </div>
-                ${e.notes ? `<p class="ex-card-notes">${e.notes}</p>` : ''}
               </div>
-              <button class="btn-delete" onclick="deleteExercise('${e.id}')" title="Eliminar" style="align-self:flex-end;margin-top:6px">✕</button>
+              <button class="btn-delete" onclick="event.stopPropagation();deleteExercise('${e.id}')" title="Eliminar" style="align-self:flex-end;margin-top:6px">✕</button>
             </div>
           </div>`).join('')
         : '<p class="coach-muted">No hay ejercicios con estos filtros.</p>';
@@ -510,6 +526,42 @@
       closeModal('modal-exercise');
       btn.textContent = 'Guardar ejercicio'; btn.disabled = false;
       loadExercises();
+    }
+
+    function openExDetail(e) {
+      const img = document.getElementById('ex-detail-img');
+      if (e.gif_url) {
+        img.src = e.gif_url;
+        img.style.display = 'block';
+        document.getElementById('ex-detail-img-wrap').style.height = '280px';
+      } else {
+        img.style.display = 'none';
+        document.getElementById('ex-detail-img-wrap').style.height = '0';
+      }
+
+      document.getElementById('ex-detail-name').textContent = e.name;
+
+      const diffColors = { beginner: '#4ade80', intermediate: '#facc15', expert: '#f87171' };
+      const diff = e.difficulty;
+      document.getElementById('ex-detail-difficulty').innerHTML = diff
+        ? `<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;background:${diffColors[diff] || '#888'}22;color:${diffColors[diff] || '#888'}">${diff.charAt(0).toUpperCase() + diff.slice(1)}</span>`
+        : '';
+
+      document.getElementById('ex-detail-tags').innerHTML = `
+        ${e.body_part ? `<span class="ex-tag ex-tag-body" style="font-size:12px;padding:4px 10px">${e.body_part}</span>` : ''}
+        ${e.equipment ? `<span class="ex-tag ex-tag-equip" style="font-size:12px;padding:4px 10px">${e.equipment}</span>` : ''}
+        ${e.type ? `<span class="ex-tag" style="font-size:12px;padding:4px 10px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5)">${e.type}</span>` : ''}
+      `;
+
+      document.getElementById('ex-detail-instructions').innerHTML = e.instructions
+        ? `<p style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px">Instrucciones</p>${e.instructions}`
+        : '';
+
+      document.getElementById('ex-detail-safety').innerHTML = e.safety_info
+        ? `<p style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:.5px;margin:0 0 6px">⚠️ Seguridad</p>${e.safety_info}`
+        : '';
+
+      openModal('modal-ex-detail');
     }
 
     async function deleteExercise(id) {
