@@ -260,6 +260,18 @@
           <button class="modal-close" onclick="closeExPicker()">✕</button>
         </div>
         <input id="ex-picker-search" class="form-input" type="search" placeholder="Buscar ejercicio…" oninput="renderExPicker()" style="margin-bottom:10px" />
+        <div id="ex-picker-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+          <button class="ex-fbtn active" data-picker-filter="all" onclick="setPickerFilter(this,'all')">Todos</button>
+          <button class="ex-fbtn" data-picker-filter="glúteo" onclick="setPickerFilter(this,'glúteo')">Glúteo</button>
+          <button class="ex-fbtn" data-picker-filter="pierna" onclick="setPickerFilter(this,'pierna')">Pierna</button>
+          <button class="ex-fbtn" data-picker-filter="pecho" onclick="setPickerFilter(this,'pecho')">Pecho</button>
+          <button class="ex-fbtn" data-picker-filter="espalda" onclick="setPickerFilter(this,'espalda')">Espalda</button>
+          <button class="ex-fbtn" data-picker-filter="hombro" onclick="setPickerFilter(this,'hombro')">Hombro</button>
+          <button class="ex-fbtn" data-picker-filter="bíceps" onclick="setPickerFilter(this,'bíceps')">Bíceps</button>
+          <button class="ex-fbtn" data-picker-filter="tríceps" onclick="setPickerFilter(this,'tríceps')">Tríceps</button>
+          <button class="ex-fbtn" data-picker-filter="core" onclick="setPickerFilter(this,'core')">Core</button>
+          <button class="ex-fbtn" data-picker-filter="movilidad" onclick="setPickerFilter(this,'movilidad')">Movilidad</button>
+        </div>
         <div id="ex-picker-list" style="overflow-y:auto;flex:1"></div>
       </div>
     </div>
@@ -491,6 +503,7 @@
     let sessionCount = 0;
     let sessionExercises = {}; // { sessionN: [{id, name, sets, reps}] }
     let activePickerSession = null;
+    let pickerBodyFilter = 'all';
 
     // ── Section navigation ──
     function showSection(name) {
@@ -728,11 +741,19 @@
     // ── Exercise picker ──
     function openExPicker(sessionN) {
       activePickerSession = sessionN;
+      pickerBodyFilter = 'all';
       document.getElementById('ex-picker-search').value = '';
+      document.querySelectorAll('#ex-picker-filters .ex-fbtn').forEach(b => b.classList.toggle('active', b.dataset.pickerFilter === 'all'));
       renderExPicker();
       document.getElementById('ex-picker-overlay').classList.remove('hidden');
-      // Load exercises if not loaded yet
       if (!allExercises.length && currentTrainerId) loadExercises();
+    }
+
+    function setPickerFilter(btn, val) {
+      pickerBodyFilter = val;
+      document.querySelectorAll('#ex-picker-filters .ex-fbtn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderExPicker();
     }
 
     function closeExPicker() {
@@ -742,7 +763,10 @@
 
     function renderExPicker() {
       const q = (document.getElementById('ex-picker-search').value || '').toLowerCase();
-      const filtered = allExercises.filter(e => !q || e.name.toLowerCase().includes(q) || (e.body_part || '').toLowerCase().includes(q));
+      const filtered = allExercises.filter(e =>
+        (pickerBodyFilter === 'all' || e.body_part === pickerBodyFilter) &&
+        (!q || e.name.toLowerCase().includes(q) || (e.body_part || '').toLowerCase().includes(q))
+      );
       const selected = sessionExercises[activePickerSession] || [];
       document.getElementById('ex-picker-list').innerHTML = filtered.length
         ? filtered.map(e => {
