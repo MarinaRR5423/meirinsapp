@@ -739,14 +739,17 @@
     }
 
     // ── Exercise picker ──
-    function openExPicker(sessionN) {
+    async function openExPicker(sessionN) {
       activePickerSession = sessionN;
       pickerBodyFilter = 'all';
       document.getElementById('ex-picker-search').value = '';
       document.querySelectorAll('#ex-picker-filters .ex-fbtn').forEach(b => b.classList.toggle('active', b.dataset.pickerFilter === 'all'));
-      renderExPicker();
       document.getElementById('ex-picker-overlay').classList.remove('hidden');
-      if (!allExercises.length && currentTrainerId) loadExercises();
+      if (!allExercises.length) {
+        document.getElementById('ex-picker-list').innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;padding:16px 0;text-align:center">Cargando…</p>';
+        await loadExercises();
+      }
+      renderExPicker();
     }
 
     function setPickerFilter(btn, val) {
