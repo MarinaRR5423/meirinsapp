@@ -646,9 +646,9 @@
       status.textContent = 'Subiendo…';
       const ext = file.name.split('.').pop();
       const path = `exercises/${currentDetailExercise.id}_${Date.now()}.${ext}`;
-      const { error: upErr } = await sb.storage.from('exercise-media').upload(path, file, { upsert: true });
+      const { error: upErr } = await sb.storage.from('exercise-images').upload(path, file, { upsert: true });
       if (upErr) { status.textContent = '❌ ' + upErr.message; return; }
-      const { data: { publicUrl } } = sb.storage.from('exercise-media').getPublicUrl(path);
+      const { data: { publicUrl } } = sb.storage.from('exercise-images').getPublicUrl(path);
       const table = currentDetailExercise.created_by_trainer_id ? 'exercises' : 'exercises_library';
       const { error: dbErr } = await sb.from(table).update({ gif_url: publicUrl }).eq('id', currentDetailExercise.id);
       if (dbErr) { status.textContent = '❌ ' + dbErr.message; return; }
