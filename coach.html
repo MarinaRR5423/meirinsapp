@@ -147,7 +147,12 @@
             <h2 id="ex-detail-name" style="font-size:20px;font-weight:800;color:white;margin:0 0 14px"></h2>
             <div id="ex-detail-difficulty" style="margin-bottom:16px"></div>
             <div id="ex-detail-instructions" style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.7;margin-bottom:14px"></div>
-            <div id="ex-detail-safety" style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px"></div>
+            <div id="ex-detail-safety" style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6;border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;margin-bottom:16px"></div>
+            <label style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:9px 16px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.7);cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
+              🖼 Cambiar imagen
+              <input type="file" accept="image/*" style="display:none" onchange="uploadDetailImage(this)" />
+            </label>
+            <span id="ex-detail-upload-status" style="font-size:12px;color:#a898ff;margin-left:10px"></span>
           </div>
         </div>
       </div>
@@ -504,6 +509,7 @@
     let sessionExercises = {}; // { sessionN: [{id, name, sets, reps}] }
     let activePickerSession = null;
     let pickerBodyFilter = 'all';
+    let currentDetailExercise = null;
 
     // ── Section navigation ──
     function showSection(name) {
@@ -624,7 +630,33 @@
       loadExercises();
     }
 
+    async function uploadDetailImage(input) {
+      const file = input.files[0];
+      if (!file || !currentDetailExercise) return;
+      const status = document.getElementById('ex-detail-upload-status');
+      status.textContent = 'Subiendo…';
+      const ext = file.name.split('.').pop();
+      const path = `exercises/${currentDetailExercise.id}_${Date.now()}.${ext}`;
+      const { error: upErr } = await sb.storage.from('exercise-media').upload(path, file, { upsert: true });
+      if (upErr) { status.textContent = '❌ ' + upErr.message; return; }
+      const { data: { publicUrl } } = sb.storage.from('exercise-media').getPublicUrl(path);
+      const table = currentDetailExercise.created_by_trainer_id ? 'exercises' : 'exercises_library';
+      const { error: dbErr } = await sb.from(table).update({ gif_url: publicUrl }).eq('id', currentDetailExercise.id);
+      if (dbErr) { status.textContent = '❌ ' + dbErr.message; return; }
+      // Update UI
+      currentDetailExercise.gif_url = publicUrl;
+      const img = document.getElementById('ex-detail-img');
+      img.src = publicUrl; img.style.display = 'block';
+      document.getElementById('ex-detail-img-wrap').style.height = '280px';
+      // Update local cache
+      const idx = allExercises.findIndex(e => e.id === currentDetailExercise.id);
+      if (idx !== -1) allExercises[idx].gif_url = publicUrl;
+      status.textContent = '✓ Imagen actualizada';
+      setTimeout(() => { status.textContent = ''; }, 3000);
+    }
+
     function openExDetail(e) {
+      currentDetailExercise = e;
       const img = document.getElementById('ex-detail-img');
       if (e.gif_url) {
         img.src = e.gif_url;
