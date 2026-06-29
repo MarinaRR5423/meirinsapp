@@ -547,9 +547,13 @@
     }
 
     function renderExercises() {
+      const equip = (e) => (e.equipment || '').toLowerCase().trim();
       const filtered = allExercises.filter(e =>
         (activeBody === 'all' || e.body_part === activeBody) &&
-        (activeEquip === 'all' || (e.equipment || '').toLowerCase().includes(activeEquip))
+        (activeEquip === 'all' ||
+          (activeEquip === 'sin material'
+            ? !equip(e) || equip(e) === 'sin material' || equip(e).includes('sin material')
+            : equip(e).includes(activeEquip)))
       );
       document.getElementById('ex-list').innerHTML = filtered.length
         ? filtered.map(e => `
