@@ -574,6 +574,20 @@
     }
 
     function renderExercises() {
+      const body = (e) => (e.body_part || '').toLowerCase().trim();
+      const bodyMatch = (e, filter) => {
+        const b = body(e);
+        if (filter === 'glúteo')    return b.includes('glút') || b.includes('glute');
+        if (filter === 'pierna')    return b.includes('cuád') || b.includes('quad') || b.includes('isquio') || b.includes('hamst') || b.includes('gemelo') || b.includes('calf') || b.includes('calve') || b.includes('aductor') || b.includes('abductor');
+        if (filter === 'pecho')     return b.includes('pecho') || b.includes('chest');
+        if (filter === 'espalda')   return b.includes('espalda') || b.includes('lat') || b.includes('back') || b.includes('lumbar') || b.includes('trapec') || b.includes('trap');
+        if (filter === 'hombro')    return b.includes('hombro') || b.includes('shoulder') || b.includes('delt');
+        if (filter === 'bíceps')    return b.includes('bícep') || b.includes('bicep') || b.includes('antebrazo') || b.includes('forearm');
+        if (filter === 'tríceps')   return b.includes('trícep') || b.includes('tricep');
+        if (filter === 'core')      return b.includes('abdom') || b.includes('core') || b.includes('cuello') || b.includes('neck');
+        if (filter === 'movilidad') return b.includes('movil') || b.includes('stretch') || b.includes('flexib');
+        return b.includes(filter);
+      };
       const equip = (e) => (e.equipment || '').toLowerCase().trim();
       const equipMatch = (e, filter) => {
         const eq = equip(e);
@@ -584,7 +598,7 @@
         return eq.includes(filter);
       };
       const filtered = allExercises.filter(e =>
-        (activeBody === 'all' || e.body_part === activeBody) &&
+        (activeBody === 'all' || bodyMatch(e, activeBody)) &&
         (activeEquip === 'all' || equipMatch(e, activeEquip))
       );
       document.getElementById('ex-list').innerHTML = filtered.length
