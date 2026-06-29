@@ -251,6 +251,19 @@
       </div>
 
     </main>
+
+    <!-- ── EXERCISE PICKER ── -->
+    <div id="ex-picker-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeExPicker()">
+      <div class="modal-card" style="display:flex;flex-direction:column;max-height:80vh">
+        <div class="modal-header">
+          <h2 class="modal-title">Seleccionar ejercicio</h2>
+          <button class="modal-close" onclick="closeExPicker()">✕</button>
+        </div>
+        <input id="ex-picker-search" class="form-input" type="search" placeholder="Buscar ejercicio…" oninput="renderExPicker()" style="margin-bottom:10px" />
+        <div id="ex-picker-list" style="overflow-y:auto;flex:1"></div>
+      </div>
+    </div>
+
   </div>
 
   <style>
@@ -323,6 +336,21 @@
     .session-form-title { font-size: 12px; font-weight: 700; color: #a898ff; margin: 0 0 8px; }
     .btn-add-session { background: transparent; border: 1px dashed rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; width: 100%; margin-top: 4px; }
     .btn-add-session:hover { border-color: #7c6af7; color: #a898ff; }
+
+    /* Session exercise picker */
+    .btn-pick-ex { background: transparent; border: 1px dashed rgba(124,106,247,0.4); color: #a898ff; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; width: 100%; margin-top: 6px; transition: all .15s; }
+    .btn-pick-ex:hover { background: rgba(124,106,247,0.1); border-color: #7c6af7; }
+    .session-ex-selected { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+    .session-ex-item { display: flex; align-items: center; gap: 8px; background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.2); border-radius: 8px; padding: 7px 10px; }
+    .session-ex-name { flex: 1; font-size: 13px; color: white; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .session-ex-num { width: 42px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: white; font-size: 13px; font-weight: 700; text-align: center; padding: 3px 4px; }
+    .session-ex-num:focus { outline: none; border-color: #7c6af7; }
+
+    /* Exercise picker overlay */
+    .ex-picker-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background .1s; border-radius: 8px; }
+    .ex-picker-row:hover { background: rgba(255,255,255,0.05); }
+    .ex-picker-row--added { opacity: 0.45; cursor: default; }
+    .ex-picker-row--added:hover { background: none; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
@@ -461,6 +489,8 @@
     let allExercises = [];
     let activeBody = 'all', activeEquip = 'all';
     let sessionCount = 0;
+    let sessionExercises = {}; // { sessionN: [{id, name, sets, reps}] }
+    let activePickerSession = null;
 
     // ── Section navigation ──
     function showSection(name) {
@@ -674,14 +704,90 @@
 
     function addSession() {
       sessionCount++;
+      sessionExercises[sessionCount] = [];
       const div = document.createElement('div');
       div.className = 'session-form-block';
       div.id = 'session-block-' + sessionCount;
       div.innerHTML = `
-        <p class="session-form-title">Sesión ${sessionCount}</p>
-        <input class="form-input" style="margin-bottom:8px" type="text" placeholder="Título (Ej: Lunes · Tren inferior)" data-session-title="${sessionCount}" />
-        <textarea class="form-input" rows="4" placeholder="Ejercicios (uno por línea, Ej: Sentadilla — 3×12)" data-session-exercises="${sessionCount}"></textarea>`;
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <p class="session-form-title">Sesión ${sessionCount}</p>
+          <button type="button" onclick="removeSession(${sessionCount})" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:16px;padding:0">✕</button>
+        </div>
+        <input class="form-input" style="margin-bottom:10px" type="text" placeholder="Título (Ej: Lunes · Tren inferior)" data-session-title="${sessionCount}" />
+        <div id="session-ex-list-${sessionCount}" class="session-ex-selected"></div>
+        <button type="button" class="btn-pick-ex" onclick="openExPicker(${sessionCount})">+ Añadir ejercicio</button>`;
       document.getElementById('prog-sessions-list').appendChild(div);
+    }
+
+    function removeSession(n) {
+      const el = document.getElementById('session-block-' + n);
+      if (el) el.remove();
+      delete sessionExercises[n];
+    }
+
+    // ── Exercise picker ──
+    function openExPicker(sessionN) {
+      activePickerSession = sessionN;
+      document.getElementById('ex-picker-search').value = '';
+      renderExPicker();
+      document.getElementById('ex-picker-overlay').classList.remove('hidden');
+      // Load exercises if not loaded yet
+      if (!allExercises.length && currentTrainerId) loadExercises();
+    }
+
+    function closeExPicker() {
+      document.getElementById('ex-picker-overlay').classList.add('hidden');
+      activePickerSession = null;
+    }
+
+    function renderExPicker() {
+      const q = (document.getElementById('ex-picker-search').value || '').toLowerCase();
+      const filtered = allExercises.filter(e => !q || e.name.toLowerCase().includes(q) || (e.body_part || '').toLowerCase().includes(q));
+      const selected = sessionExercises[activePickerSession] || [];
+      document.getElementById('ex-picker-list').innerHTML = filtered.length
+        ? filtered.map(e => {
+            const isAdded = selected.some(s => s.id === e.id);
+            return `<div class="ex-picker-row ${isAdded ? 'ex-picker-row--added' : ''}" onclick="${isAdded ? '' : `pickExercise('${e.id}','${e.name.replace(/'/g,"\\'")}');this.classList.add('ex-picker-row--added')`}">
+              ${e.gif_url ? `<img src="${e.gif_url}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;flex-shrink:0" loading="lazy"/>` : `<div style="width:40px;height:40px;border-radius:6px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💪</div>`}
+              <div style="flex:1;min-width:0">
+                <p style="margin:0;font-size:13px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.name}</p>
+                ${e.body_part ? `<p style="margin:0;font-size:11px;color:rgba(255,255,255,0.4)">${e.body_part}${e.equipment ? ' · ' + e.equipment : ''}</p>` : ''}
+              </div>
+              <span style="font-size:18px;flex-shrink:0">${isAdded ? '✓' : '+'}</span>
+            </div>`;
+          }).join('')
+        : '<p style="color:rgba(255,255,255,0.4);font-size:13px;padding:16px 0;text-align:center">Sin resultados</p>';
+    }
+
+    function pickExercise(id, name) {
+      if (!activePickerSession) return;
+      const ex = allExercises.find(e => e.id === id);
+      if (!ex) return;
+      if (sessionExercises[activePickerSession].some(s => s.id === id)) return;
+      sessionExercises[activePickerSession].push({ id, name, sets: 3, reps: 12 });
+      renderSessionExercises(activePickerSession);
+      renderExPicker();
+    }
+
+    function removeSessionExercise(sessionN, id) {
+      sessionExercises[sessionN] = (sessionExercises[sessionN] || []).filter(e => e.id !== id);
+      renderSessionExercises(sessionN);
+    }
+
+    function renderSessionExercises(sessionN) {
+      const list = document.getElementById('session-ex-list-' + sessionN);
+      if (!list) return;
+      const exs = sessionExercises[sessionN] || [];
+      list.innerHTML = exs.map(ex => `
+        <div class="session-ex-item">
+          <span class="session-ex-name">${ex.name}</span>
+          <input type="number" min="1" max="10" value="${ex.sets}" class="session-ex-num" title="Series"
+            onchange="sessionExercises[${sessionN}].find(e=>e.id==='${ex.id}').sets=+this.value" />
+          <span style="color:rgba(255,255,255,0.3);font-size:12px">×</span>
+          <input type="number" min="1" max="100" value="${ex.reps}" class="session-ex-num" title="Reps"
+            onchange="sessionExercises[${sessionN}].find(e=>e.id==='${ex.id}').reps=+this.value" />
+          <button type="button" onclick="removeSessionExercise(${sessionN},'${ex.id}')" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:14px;padding:0 2px">✕</button>
+        </div>`).join('');
     }
 
     async function saveProgram(e) {
@@ -691,8 +797,10 @@
       const sessions = [];
       for (let i = 1; i <= sessionCount; i++) {
         const titleEl = document.querySelector(`[data-session-title="${i}"]`);
-        const exEl = document.querySelector(`[data-session-exercises="${i}"]`);
-        if (titleEl && exEl) sessions.push({ title: titleEl.value.trim(), exercises: exEl.value.trim() });
+        if (!titleEl) continue;
+        const exs = sessionExercises[i] || [];
+        const exercisesText = exs.map(ex => `${ex.name} — ${ex.sets}×${ex.reps}`).join('\n');
+        sessions.push({ title: titleEl.value.trim(), exercises: exercisesText });
       }
       const { error } = await sb.from('trainer_programs').insert({
         trainer_id: currentTrainerId,
@@ -709,6 +817,7 @@
       e.target.reset();
       document.getElementById('prog-sessions-list').innerHTML = '';
       sessionCount = 0;
+      sessionExercises = {};
       closeModal('modal-program');
       btn.textContent = 'Guardar programa'; btn.disabled = false;
       loadPrograms();
